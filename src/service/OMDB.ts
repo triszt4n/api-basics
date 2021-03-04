@@ -1,3 +1,6 @@
+import fetch from "node-fetch"
+import { URLSearchParams } from "url"
+
 export interface FilmData {
   Title: string
   Year: string
@@ -9,6 +12,9 @@ export class OMDB_Api {
   static instance: OMDB_Api = null
   
   private constructor() {}
+
+  private readonly apiUrl = "http://www.omdbapi.com/"
+  private readonly apiKey = process.env.OMDB_API_KEY
 
   /** Return a singleton instance of the service */
   public static getInstance() {
@@ -41,14 +47,38 @@ export class OMDB_Api {
 
   /** Return mock data for now */
   public async search(name?: string, year?: string): Promise<FilmData[]> {
-    return this.mockdb();
+    // return this.mockdb();
 
     //TODO use OMDB API to get list of movies
+    if (!name) return []
+
+    const params = new URLSearchParams({
+      s: name,
+      y: year,
+      apikey: this.apiKey
+    })
+
+    const url = `${this.apiUrl}?${params}`
+
+    return fetch(url)
+      .then(res => res.json())
+      .then(res => res.Search)
   }
 
 
   public async getById(id: string): Promise<FilmData> {
-    return this.mockdb().filter(m => m.imdbID === id)[0]
+    //return this.mockdb().filter(m => m.imdbID === id)[0]
+
+
+    const params = new URLSearchParams({
+      i: id,
+      apikey: this.apiKey
+    })
+
+    const url = `${this.apiUrl}?${params}`
+
+    return fetch(url)
+      .then(res => res.json())
   }
 
 }
