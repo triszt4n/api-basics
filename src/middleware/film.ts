@@ -105,3 +105,28 @@ export const dislikeFilmMW = (req: Request, res: Response, next: NextFunction) =
     then(() => next())
     .catch(next)
 }
+
+
+export const getOpiniatedFilmsMW = async (req: Request, res: Response, next: NextFunction) => {
+  const u2fs: UserToFilm[] = res.locals.user.films
+  const filmdata: Film[] = await Film.findByIds(u2fs.map(element => element.filmId))
+  const merged = u2fs.map((element, i) => {
+    return Object.assign({}, { liked: element.liked }, filmdata[i])
+  })
+
+  res.locals.result = merged
+
+  next()
+}
+
+export const deleteUserToFilmMW = async (req: Request, res: Response, next: NextFunction) => {
+  const film: Film = res.locals.film
+  const currentUser: User = res.locals.user
+
+  await UserToFilm.delete({
+    userId: currentUser.id,
+    filmId: film.id
+  }).catch(next)
+
+  next()
+}
