@@ -57,6 +57,9 @@ export const partnerListMW = async (req: Request, res: Response, next: NextFunct
         points: points
       }
     })
+    .sort((a,b)=> b.points - a.points)
+
+  console.log(res.locals.matches)
 
   return next()
 }
